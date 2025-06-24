@@ -1,0 +1,137 @@
+.consulta {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 30px;
+  background-color: #f7f8fa;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  text-align: center;
+  font-size: 26px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.consulta__form {
+  display: grid;
+  gap: 25px;
+}
+.consulta__input--section {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+}
+.consulta__input--group,
+.consulta__textarea--group {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.consulta__input--group label,
+.consulta__textarea--group label {
+  font-size: 14px;
+  margin-bottom: 5px;
+  width: 100%;
+}
+
+.consulta__input--group input,
+.consulta__textarea--group textarea {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  width: 100%;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.input-with-icon {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.input-with-icon input {
+  padding-right: 30px;
+}
+
+.input-with-icon svg {
+  position: absolute;
+  right: 10px;
+  color: #888;
+}
+
+.consulta__textarea--group textarea {
+  height: 100px;
+}
+
+.consulta__checkbox--group {
+  display: flex;
+  align-items: end;
+  justify-content: end;
+}
+
+.doctor-availability {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  background-color: #dedede;
+  color: #95a0bd;
+  border-radius: 4px;
+}
+
+.consulta__total--group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.consulta__total--group p {
+  font-size: 14px;
+  color: #333;
+}
+
+.consulta__total--group {
+  display: flex;
+  justify-content: space-between;
+}
+
+.button-group {
+  display: flex;
+  justify-content: end;
+  gap: 4px;
+}
+
+.cancelar-button,
+.agregar-button {
+  padding: 8px 10px;
+  border: none;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 160px;
+}
+
+.cancelar-button {
+  background-color: #ad3c3c;
+}
+
+.cancelar-button:hover {
+  background-color: #a93733;
+}
+
+.agregar-button {
+  background-color: #c7d2ca;
+  color: #bbbaba;
+}
+
+.agregar-button:hover {
+  background-color: #b9cabd;
+}

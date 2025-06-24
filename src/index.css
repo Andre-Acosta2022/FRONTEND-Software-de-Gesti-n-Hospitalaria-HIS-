@@ -1,0 +1,22 @@
+* {
+  margin: 0;
+  padding: 0;
+
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+body {
+  background-image: linear-gradient(to bottom, #45569b, #7fa8cf);
+  background-image: linear-gradient(to left, #45569b, #7fa8cf);
+}
+:root {
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}

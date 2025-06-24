@@ -1,0 +1,41 @@
+/* Estilos para la página de pacientes */
+.pacientesPage {
+  padding: 20px;
+}
+
+.pacientesPage__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.pacientesPage__table th, .pacientesPage__table td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd; /* Línea debajo de cada celda */
+}
+
+.paciente__actions--view, .paciente__actions--edit, .paciente__actions--delete {
+  margin-right: 5px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.paciente__actions--view {
+  color: green;
+}
+
+.paciente__actions--edit {
+  color: blue;
+}
+
+.paciente__actions--delete {
+  color: red;
+}
+
+.paciente__actions--view:hover,
+.paciente__actions--edit:hover,
+.paciente__actions--delete:hover {
+  opacity: 0.7;
+}

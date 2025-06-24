@@ -1,0 +1,41 @@
+/* Estilos para la página de clínicas */
+.clinicaPage {
+  padding: 20px;
+}
+
+.clinicaPage__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.clinicaPage__table th, .clinicaPage__table td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.clinica__actions--view, .clinica__actions--edit, .clinica__actions--delete {
+  margin-right: 5px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.clinica__actions--view {
+  color: green;
+}
+
+.clinica__actions--edit {
+  color: blue;
+}
+
+.clinica__actions--delete {
+  color: red;
+}
+
+.clinica__actions--view:hover,
+.clinica__actions--edit:hover,
+.clinica__actions--delete:hover {
+  opacity: 0.7;
+}

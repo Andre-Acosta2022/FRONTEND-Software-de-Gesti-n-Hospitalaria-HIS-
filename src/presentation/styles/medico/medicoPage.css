@@ -1,0 +1,19 @@
+/* Estilos para la página de médicos */
+.medicosPage {
+  padding: 20px;
+}
+
+.medicosPage__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.medicosPage__table th, .medicosPage__table td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.medico__actions--view, .medico__actions--edit, .medico__actions--delete {
+  margin-right: 5px;
+}
