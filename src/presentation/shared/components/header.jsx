@@ -25,34 +25,29 @@ export default function Header() {
             ]
         },
         {
-            id: 3,
-            name: 'Servicios',
-            link: '/servicios'
-        },
-        {
             id: 4,
-            name: 'Paquetes',
-            link: '/paquetes'
-        },
-        {
-            id: 5,
             name: 'Turno',
             link: '/turno'
         },
         {
-            id: 6,
+            id: 5,
             name: 'Consulta',
             link: '/consulta'
         },
         {
-            id: 7,
+            id: 6,
             name: 'Facturacion',
             link: '/facturacion'
         },
          {
-            id: 8,
+            id: 7,
             name: 'Clincia',
             link: '/clinica'
+        },
+        {
+            id: 8,
+            name: 'Calendar',
+            link: '/calendar'
         },
     ];
 
