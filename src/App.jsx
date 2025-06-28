@@ -6,10 +6,14 @@ import AñadirMedicosPage from './presentation/components/medico/AñadirMedicosP
 import EspecialidadesPage from './presentation/components/medico/EspecialidadesPage'
 import PacientesPage from './presentation/pages/PacientesPage'
 import AñadirPacientesPage from './presentation/components/pacientes/AñadirPacientesPage'
+import seguromedicoPage from './presentation/components/pacientes/seguromedicoPage'
+import InformesPage from './presentation/components/informes/InformesPage'
 import React from 'react'
 import TurnoPage from './presentation/pages/TurnoPage'
-import ConsultaPage from './presentation/pages/ConsultaPage'
+
+import CitasPage from './presentation/components/citas/CitasPage'
 import ClinicasPage from './presentation/components/clinica/clinicaPage'
+import AñadirsedePage from './presentation/components/clinica/AñadirsedePage'
 import CalendarPage from './presentation/components/turno/CalendarPage'
 import FacturacionPage from './presentation/pages/FacturacionPage'
 import Error404 from './presentation/pages/Error404Page'
@@ -42,9 +46,12 @@ function App() {
        
         <Route path='/turno' element={<TurnoPage />} />
         <Route path='/calendar' element={<CalendarPage />} />
-        <Route path='/consulta' element={<ConsultaPage />} />
+       
+        <Route path='/citas' element={<CitasPage />} />
         <Route path='/facturacion' element={<FacturacionPage />} />
          <Route path='/clinica' element={<ClinicasPage />} />
+        <Route path='/añadirsede' element={<AñadirsedePage />} />
+        <Route path='/informes' element={<InformesPage />} />
         {/* Error 404  */}
 
         <Route path='*' element={<Error404 />} />

@@ -27,28 +27,36 @@ export default function Header() {
         {
             id: 4,
             name: 'Turno',
-            link: '/turno'
+            link: '/turno',
+            dropdown: [
+                { id: 1, name: 'Listado de turnos', link: '/calendar' },
+                { id: 2, name: 'Añadir turnos', link: '/turno' }
+            ]
         },
         {
             id: 5,
-            name: 'Consulta',
-            link: '/consulta'
-        },
-        {
-            id: 6,
             name: 'Facturacion',
             link: '/facturacion'
         },
          {
-            id: 7,
+            id: 6,
             name: 'Clincia',
-            link: '/clinica'
+            link: '/clinica',
+            dropdown: [
+                { id: 1, name: 'Listado de clinicas', link: '/clinica' },
+                { id: 2, name: 'Añadir clinicas', link: '/añadirsede' }
+            ]
+        },
+           {
+            id: 7,
+            name: 'Citas',
+            link: '/citas'
         },
         {
             id: 8,
-            name: 'Calendar',
-            link: '/calendar'
-        },
+            name: 'Informes',
+            link: '/informes'
+        }
     ];
 
     return (
