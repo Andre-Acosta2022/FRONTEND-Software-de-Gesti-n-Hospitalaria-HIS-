@@ -1,40 +1,78 @@
-// services/PacienteService.js
-const API_URL = 'http://localhost:8080/api/pacientes'; // Cambia por la URL de tu backend
+// src/infrastructure/Services/paciente.service.ts
+const PACIENTES_API_URL = 'http://localhost:8081/api/pacientes';
 
-// Obtener todos los pacientes
-export const getPacientes = async () => {
+interface Paciente {
+  id: number;
+  nombre: string;
+  apellidos: string;
+  edad: number;
+  email: string;
+  fechaNacimiento: string;
+  sexo: string;
+  estadoCivil: string;
+  telefono: string;
+  nacionalidad: string;
+  direccion: {
+    departamento: string;
+    provincia: string;
+    ciudad: string;
+  };
+  tipoDocumento: string;
+  dni: string;
+  contactoEmergencia: string;
+  seguroMedico: {
+    id: number;
+    nombre: string;
+    tipoSeguro: string;
+    descripcion: string;
+    cobertura: string;
+  };
+}
+
+export const getPacientes = async (): Promise<Paciente[]> => {
   try {
-    const response = await fetch(`${API_URL}`);
-    const data = await response.json();
-    return data; // O ajusta según la estructura de respuesta de la API
+    const response = await fetch(PACIENTES_API_URL);
+    
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+    
+    return await response.json();
   } catch (error) {
     console.error('Error fetching pacientes:', error);
-    throw error;
+    throw new Error('No se pudo conectar con el servidor de pacientes. Verifique su conexión o intente más tarde.');
   }
 };
 
-// Obtener un paciente por ID
-export const getPacienteById = async (id) => {
+export const getPacienteById = async (id: number): Promise<Paciente> => {
   try {
-    const response = await fetch(`${API_URL}/${id}`);
-    const data = await response.json();
-    return data;
+    const response = await fetch(`${PACIENTES_API_URL}/${id}`);
+    
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+    
+    return await response.json();
   } catch (error) {
-    console.error('Error fetching paciente:', error);
+    console.error(`Error fetching paciente ${id}:`, error);
     throw error;
   }
 };
 
-// Crear un paciente
-export const createPaciente = async (paciente) => {
+export const createPaciente = async (paciente: Omit<Paciente, 'id'>): Promise<Paciente> => {
   try {
-    const response = await fetch(API_URL, {
+    const response = await fetch(PACIENTES_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(paciente),
     });
+    
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+    
     return await response.json();
   } catch (error) {
     console.error('Error creating paciente:', error);
@@ -42,16 +80,20 @@ export const createPaciente = async (paciente) => {
   }
 };
 
-// Actualizar un paciente
-export const updatePaciente = async (id, paciente) => {
+export const updatePaciente = async (id: number, paciente: Partial<Paciente>): Promise<Paciente> => {
   try {
-    const response = await fetch(`${API_URL}/${id}`, {
+    const response = await fetch(`${PACIENTES_API_URL}/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(paciente),
     });
+    
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+    
     return await response.json();
   } catch (error) {
     console.error('Error updating paciente:', error);
@@ -59,13 +101,17 @@ export const updatePaciente = async (id, paciente) => {
   }
 };
 
-// Eliminar un paciente
-export const deletePaciente = async (id) => {
+export const deletePaciente = async (id: number): Promise<boolean> => {
   try {
-    const response = await fetch(`${API_URL}/${id}`, {
+    const response = await fetch(`${PACIENTES_API_URL}/${id}`, {
       method: 'DELETE',
     });
-    return response.ok;
+    
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+    
+    return true;
   } catch (error) {
     console.error('Error deleting paciente:', error);
     throw error;

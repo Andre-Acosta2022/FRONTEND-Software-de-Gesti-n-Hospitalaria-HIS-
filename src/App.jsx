@@ -14,7 +14,7 @@ import TurnoPage from './presentation/pages/TurnoPage'
 import CitasPage from './presentation/components/citas/CitasPage'
 import ClinicasPage from './presentation/components/clinica/clinicaPage'
 import AñadirsedePage from './presentation/components/clinica/AñadirsedePage'
-import CalendarPage from './presentation/components/turno/CalendarPage'
+import CalendarPage from './presentation/components/turno/calendarPage'
 import FacturacionPage from './presentation/pages/FacturacionPage'
 import Error404 from './presentation/pages/Error404Page'
 
