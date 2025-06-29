@@ -1,5 +1,4 @@
-// src/infrastructure/Services/paciente.service.ts
-const PACIENTES_API_URL = 'http://localhost:8081/api/pacientes';
+import axiosPaciente from '@/infrastructure/Config/axiosPaciente';  // La instancia de Axios
 
 interface Paciente {
   id: number;
@@ -31,13 +30,8 @@ interface Paciente {
 
 export const getPacientes = async (): Promise<Paciente[]> => {
   try {
-    const response = await fetch(PACIENTES_API_URL);
-    
-    if (!response.ok) {
-      throw new Error(`Error ${response.status}: ${response.statusText}`);
-    }
-    
-    return await response.json();
+    const response = await axiosPaciente.get('');  // Usamos Axios para obtener pacientes
+    return response.data;
   } catch (error) {
     console.error('Error fetching pacientes:', error);
     throw new Error('No se pudo conectar con el servidor de pacientes. Verifique su conexión o intente más tarde.');
@@ -46,13 +40,8 @@ export const getPacientes = async (): Promise<Paciente[]> => {
 
 export const getPacienteById = async (id: number): Promise<Paciente> => {
   try {
-    const response = await fetch(`${PACIENTES_API_URL}/${id}`);
-    
-    if (!response.ok) {
-      throw new Error(`Error ${response.status}: ${response.statusText}`);
-    }
-    
-    return await response.json();
+    const response = await axiosPaciente.get(`/${id}`);  // Usamos Axios para obtener un paciente por ID
+    return response.data;
   } catch (error) {
     console.error(`Error fetching paciente ${id}:`, error);
     throw error;
@@ -61,19 +50,8 @@ export const getPacienteById = async (id: number): Promise<Paciente> => {
 
 export const createPaciente = async (paciente: Omit<Paciente, 'id'>): Promise<Paciente> => {
   try {
-    const response = await fetch(PACIENTES_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(paciente),
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Error ${response.status}: ${response.statusText}`);
-    }
-    
-    return await response.json();
+    const response = await axiosPaciente.post('/', paciente);  // Usamos Axios para crear un paciente
+    return response.data;
   } catch (error) {
     console.error('Error creating paciente:', error);
     throw error;
@@ -82,19 +60,8 @@ export const createPaciente = async (paciente: Omit<Paciente, 'id'>): Promise<Pa
 
 export const updatePaciente = async (id: number, paciente: Partial<Paciente>): Promise<Paciente> => {
   try {
-    const response = await fetch(`${PACIENTES_API_URL}/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(paciente),
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Error ${response.status}: ${response.statusText}`);
-    }
-    
-    return await response.json();
+    const response = await axiosPaciente.put(`/${id}`, paciente);  // Usamos Axios para actualizar un paciente
+    return response.data;
   } catch (error) {
     console.error('Error updating paciente:', error);
     throw error;
@@ -103,15 +70,8 @@ export const updatePaciente = async (id: number, paciente: Partial<Paciente>): P
 
 export const deletePaciente = async (id: number): Promise<boolean> => {
   try {
-    const response = await fetch(`${PACIENTES_API_URL}/${id}`, {
-      method: 'DELETE',
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Error ${response.status}: ${response.statusText}`);
-    }
-    
-    return true;
+    const response = await axiosPaciente.delete(`/${id}`);  // Usamos Axios para eliminar un paciente
+    return response.status === 200;
   } catch (error) {
     console.error('Error deleting paciente:', error);
     throw error;

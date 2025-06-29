@@ -1,9 +1,5 @@
-// src/presentation/hooks/usePacientes.js
 import { useState, useEffect, useCallback } from 'react';
-import { 
-  getPacientes, 
-  deletePaciente as deletePacienteService 
-} from '@/infrastructure/Services/paciente.service';
+import { getPacientes, deletePaciente as deletePacienteService } from '@/infrastructure/Services/paciente.service';
 
 const usePacientes = () => {
   const [pacientes, setPacientes] = useState([]);
@@ -19,7 +15,7 @@ const usePacientes = () => {
     setLoading(true);
     setError(null);
     try {
-      const pacientesData = await getPacientes();
+      const pacientesData = await getPacientes();  // Usamos getPacientes con Axios
       setPacientes(pacientesData);
     } catch (err) {
       setError(err.message || "Error al cargar los pacientes");
@@ -35,7 +31,7 @@ const usePacientes = () => {
 
   const deletePaciente = useCallback(async (id) => {
     try {
-      await deletePacienteService(id);
+      await deletePacienteService(id);  // Usamos la función deletePaciente con Axios
       setPacientes(prev => prev.filter(p => p.id !== id));
       setAlert({ 
         show: true, 
@@ -54,7 +50,7 @@ const usePacientes = () => {
   }, []);
 
   useEffect(() => {
-    fetchPacientes();
+    fetchPacientes();  // Fetch de los pacientes cuando se carga el componente
   }, [fetchPacientes]);
 
   return { 
