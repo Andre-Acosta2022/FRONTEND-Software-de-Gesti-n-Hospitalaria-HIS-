@@ -1,13 +1,20 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useKeycloak } from '@react-keycloak/web';  // Usamos keycloak para obtener roles
 import LOGO from '@/assets/image/logo.webp';
 import '@/presentation/styles/common/header.css';
 import { Link } from 'react-router-dom';
 
 export default function Header() {
-  const { keycloak } = useKeycloak();  // Obtener la instancia de Keycloak
-  const isSuperAdmin = keycloak?.hasRealmRole('superadmin');  // Verificar si es superadmin
-  const isUser = keycloak?.hasRealmRole('user');  // Verificar si es un usuario
+  const { keycloak, initialized } = useKeycloak();  // Obtener la instancia de Keycloak
+  const [roles, setRoles] = useState({ isSuperAdmin: false, isUser: false });
+
+  useEffect(() => {
+    if (initialized && keycloak) {
+      const isSuperAdmin = keycloak.hasRealmRole('superadmin');  // Verificar si es superadmin
+      const isUser = keycloak.hasRealmRole('user');  // Verificar si es un usuario
+      setRoles({ isSuperAdmin, isUser });
+    }
+  }, [initialized, keycloak]);  // Solo ejecutar cuando Keycloak esté inicializado
 
   // Lista de enlaces que se mostrarán según el rol
   const List = [
@@ -44,7 +51,7 @@ export default function Header() {
       link: '/facturacion',
     },
     // Ruta de clínica solo visible para el superadmin
-    isSuperAdmin && {
+    roles.isSuperAdmin && {
       id: 6,
       name: 'Clínica',
       link: '/clinica',
@@ -55,6 +62,12 @@ export default function Header() {
       link: '/informes',
     }
   ].filter(Boolean);  // Filtra los elementos que sean falsos (en este caso la ruta de Clínica si no es superadmin)
+
+  const handleLogout = () => {
+    if (keycloak) {
+      keycloak.logout(); // Método para cerrar sesión de Keycloak
+    }
+  };
 
   return (
     <div className="header">
@@ -85,7 +98,7 @@ export default function Header() {
           </nav>
         </div>
       </div>
-        <div className="header__button">
+      <div className="header__button">
         {keycloak?.authenticated ? (
           <button onClick={handleLogout}>Cerrar sesión</button> // Botón de logout
         ) : (

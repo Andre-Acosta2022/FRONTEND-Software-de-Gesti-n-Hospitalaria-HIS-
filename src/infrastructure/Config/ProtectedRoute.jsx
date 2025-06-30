@@ -1,21 +1,41 @@
-import React from 'react';
+// infrastructure/ProtectedRoute.jsx
+import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { useKeycloak } from '@react-keycloak/web';
+import { getKeycloakInstance } from './keycloak';
+
 
 const ProtectedRoute = ({ element, requiredRole, ...rest }) => {
-  const { keycloak } = useKeycloak();
+  const [keycloak, setKeycloak] = useState(null);
+  const [authenticated, setAuthenticated] = useState(false);
+  const [hasRequiredRole, setHasRequiredRole] = useState(false);
 
-  // Verificamos si el usuario está autenticado y tiene el rol necesario
-  if (!keycloak?.authenticated) {
-    return <Navigate to="/login" />; // Redirige a login si no está autenticado
+  useEffect(() => {
+    const keycloakInstance = getKeycloakInstance();
+    keycloakInstance.init({ onLoad: 'login-required' }).then(authenticated => {
+      setKeycloak(keycloakInstance);
+      setAuthenticated(authenticated);
+
+      if (authenticated && requiredRole) {
+        // Verifica si el usuario tiene el rol requerido
+        setHasRequiredRole(keycloakInstance.hasRealmRole(requiredRole));
+      }
+    });
+  }, [requiredRole]);
+
+  if (keycloak === null) {
+    return <div>Loading...</div>;  // Muestra algo mientras Keycloak se inicializa
   }
 
-  if (requiredRole && !keycloak.hasRealmRole(requiredRole)) {
-    return <Navigate to="/" />; // Redirige a inicio si no tiene el rol requerido
+  if (!authenticated) {
+    return <Navigate to="/login" />;  // Redirige si no está autenticado
   }
 
-  // Usar React.cloneElement para renderizar el elemento con las props adicionales
-  return React.cloneElement(element, { ...rest });
+  if (requiredRole && !hasRequiredRole) {
+    return <Navigate to="/unauthorized" />;  // Redirige si no tiene el rol necesario
+  }
+
+  // Si el usuario está autenticado y tiene el rol requerido, permite el acceso a la ruta
+  return element;
 };
 
 export default ProtectedRoute;

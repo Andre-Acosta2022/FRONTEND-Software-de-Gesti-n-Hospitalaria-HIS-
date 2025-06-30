@@ -1,9 +1,8 @@
 import { Route, Routes } from 'react-router-dom';
 import './App.css';
-import { ReactKeycloakProvider } from '@react-keycloak/web'; // Correcto import de ReactKeycloakProvider
-import { keycloak } from '@/infrastructure/Config/keycloak'; // Ruta correcta a tu archivo
-
-// Importación de páginas y componentes
+import { ReactKeycloakProvider } from '@react-keycloak/web';  // Correcto import de ReactKeycloakProvider
+import React, { useState, useEffect } from 'react';
+import { getKeycloakInstance } from './infrastructure/Config/keycloak';  // Importar la función para obtener la instancia de Keycloak
 import Login from './presentation/pages/LoginPage';
 import MedicosPage from './presentation/pages/MedicosPage';
 import AñadirMedicosPage from './presentation/components/medico/AñadirMedicosPage';
@@ -23,6 +22,25 @@ import Header from '@/presentation/shared/components/header';
 import ProtectedRoute from '@/infrastructure/Config/ProtectedRoute'; // Importar el componente ProtectedRoute
 
 const App = () => {
+  const [keycloak, setKeycloak] = useState(null);  // Mantén la instancia de Keycloak en el estado
+
+  useEffect(() => {
+    const keycloakInstance = getKeycloakInstance();  // Solo obtener la instancia de Keycloak
+    keycloakInstance.init({ 
+      onLoad: 'login-required',  // Aseguramos que Keycloak requiera login si el usuario no está autenticado
+      checkLoginIframe: false  // Desactivamos el iframe que causa el tiempo de espera
+    }).then(authenticated => {
+      setKeycloak(keycloakInstance);  // Guardamos la instancia una vez inicializada
+    }).catch(error => {
+      console.error("Error initializing Keycloak:", error);
+    });
+  }, []);  // Se ejecuta solo una vez cuando el componente se monta
+
+  // Si Keycloak no está inicializado, muestra un mensaje de carga
+  if (!keycloak) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <ReactKeycloakProvider authClient={keycloak}>
       <Header />
