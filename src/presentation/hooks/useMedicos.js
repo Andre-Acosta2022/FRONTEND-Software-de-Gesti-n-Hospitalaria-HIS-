@@ -1,16 +1,27 @@
-// src/presentation/hooks/useMedicos.js
+// src/hooks/useMedicos.js
 import { useState, useEffect } from 'react';
 import { 
   getMedicos, 
-  createMedico, 
-  getEspecialidades 
+  createMedico
 } from '@/infrastructure/Services/medico.service';
+import {  
+  getEspecialidades 
+} from '@/infrastructure/Services/especialidades.service';
 
 export const useMedicos = () => {
   const [medicos, setMedicos] = useState([]);
+  const [filteredMedicos, setFilteredMedicos] = useState([]);
   const [especialidades, setEspecialidades] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+
+  // Filtros
+  const [filters, setFilters] = useState({
+    cmp: '',
+    nombre: '',
+    especialidadId: ''
+  });
 
   // Cargar datos iniciales
   const loadData = async () => {
@@ -21,6 +32,7 @@ export const useMedicos = () => {
         getEspecialidades()
       ]);
       setMedicos(medicosData);
+      setFilteredMedicos(medicosData);
       setEspecialidades(especialidadesData);
     } catch (err) {
       setError(err.message);
@@ -29,11 +41,35 @@ export const useMedicos = () => {
     }
   };
 
+  // Aplicar filtros
+  useEffect(() => {
+    let result = medicos;
+    
+    if (filters.cmp) {
+      result = result.filter(m => m.cmp && m.cmp.toLowerCase().includes(filters.cmp.toLowerCase()));
+    }
+    
+    if (filters.nombre) {
+      const nombreLower = filters.nombre.toLowerCase();
+      result = result.filter(m => 
+        (m.nombre && m.nombre.toLowerCase().includes(nombreLower)) || 
+        (m.apellido && m.apellido.toLowerCase().includes(nombreLower))
+      );
+    }
+    
+    if (filters.especialidadId) {
+      result = result.filter(m => m.especialidadId === parseInt(filters.especialidadId));
+    }
+    
+    setFilteredMedicos(result);
+  }, [medicos, filters]);
+
   // Registrar nuevo médico
   const addMedico = async (medicoData) => {
     try {
       const newMedico = await createMedico(medicoData);
       setMedicos(prev => [...prev, newMedico]);
+      setShowForm(false);
       return true;
     } catch (err) {
       setError(err.message);
@@ -41,16 +77,29 @@ export const useMedicos = () => {
     }
   };
 
+  // Cambiar filtros
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
   useEffect(() => {
     loadData();
   }, []);
 
   return {
-    medicos,
+    medicos: filteredMedicos,
     especialidades,
     loading,
     error,
     addMedico,
-    refreshData: loadData
+    showForm,
+    setShowForm,
+    filters,
+    handleFilterChange,
+    setError
   };
 };

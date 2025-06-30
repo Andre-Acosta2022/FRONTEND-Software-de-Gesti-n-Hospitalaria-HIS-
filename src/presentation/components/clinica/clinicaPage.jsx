@@ -1,165 +1,379 @@
-import React, { useEffect, useState } from 'react';
-import { getClinicas, deleteClinica } from '@/infrastructure/Services/clinica.service';
-import { BsChevronLeft, BsChevronRight } from 'react-icons/bs';
-import { MdDeleteOutline } from 'react-icons/md';
-import { FiArrowRight } from 'react-icons/fi';
-import { BiLinkAlt } from 'react-icons/bi';
-import '@/presentation/styles/clinica/clinicaPage.css';
+import React, { useState, useEffect } from 'react';
+import { FaSearch, FaPlus, FaEdit, FaTrash, FaInfoCircle } from 'react-icons/fa';
+import '@/presentation/styles/clinica/añadirsede.css';
 
-const ClinicasPage = () => {
+const Añadirsede = () => {
+  const [sedes, setSedes] = useState([]);
   const [clinicas, setClinicas] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const [formData, setFormData] = useState({
+    nombre: '',
+    direccion: '',
+    telefono: '',
+    especialidades: '',
+    clinicaId: '',
+    estado: 'ACTIVA'
+  });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentSedeId, setCurrentSedeId] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const [disponibilidad, setDisponibilidad] = useState({});
 
+  // Cargar sedes y clínicas al inicio
   useEffect(() => {
-    const fetchClinicas = async () => {
+    const fetchData = async () => {
       try {
-        const clinicasData = await getClinicas();
-        setClinicas(clinicasData); 
-      } catch (error) {
-        console.error('Error fetching clinicas:', error);
+        setLoading(true);
+        // Simulación de llamadas a la API
+        const sedesData = await sedesService.obtenerSedesActivas();
+        const clinicasData = await sedesService.obtenerClinicas();
+        
+        setSedes(sedesData);
+        setClinicas(clinicasData);
+        
+        // Si hay clínicas, seleccionar la primera por defecto en el formulario
+        if (clinicasData.length > 0) {
+          setFormData(prev => ({ ...prev, clinicaId: clinicasData[0].id }));
+        }
+      } catch (err) {
+        setError('Error al cargar datos');
+      } finally {
+        setLoading(false);
       }
     };
-
-    fetchClinicas();
+    
+    fetchData();
   }, []);
 
-  const handleDelete = async (id) => {
+  // Manejar cambios en el formulario
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  // Manejar búsqueda
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  // Filtrar sedes basado en el término de búsqueda
+  const filteredSedes = sedes.filter(sede => 
+    sede.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    sede.direccion.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (sede.clinica && sede.clinica.nombre.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
+  // Crear o actualizar sede
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    
     try {
-      const success = await deleteClinica(id);
-      if (success) {
-        setClinicas(clinicas.filter(clinica => clinica.id !== id)); 
+      setLoading(true);
+      if (isEditing) {
+        // Actualizar sede existente
+        const updatedSede = await sedesService.actualizarSede(currentSedeId, formData);
+        setSedes(prev => prev.map(s => s.id === currentSedeId ? updatedSede : s));
+      } else {
+        // Crear nueva sede
+        const newSede = await sedesService.crearSede(formData);
+        setSedes(prev => [...prev, newSede]);
       }
-    } catch (error) {
-      console.error('Error deleting clinica:', error);
+      
+      // Resetear formulario
+      resetForm();
+    } catch (err) {
+      setError(err.message || 'Error al guardar la sede');
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Paginación
-  const indexOfLast = currentPage * itemsPerPage;
-  const indexOfFirst = indexOfLast - itemsPerPage;
-  const currentClinicas = clinicas.slice(indexOfFirst, indexOfLast);
-  const totalPages = Math.ceil(clinicas.length / itemsPerPage);
-
-  const handlePageClick = (page) => {
-    setCurrentPage(page);
+  // Editar una sede existente
+  const handleEdit = (sede) => {
+    setFormData({
+      nombre: sede.nombre,
+      direccion: sede.direccion,
+      telefono: sede.telefono,
+      especialidades: sede.especialidades,
+      clinicaId: sede.clinicaId,
+      estado: sede.estado
+    });
+    setIsEditing(true);
+    setCurrentSedeId(sede.id);
+    setShowForm(true);
   };
 
-  const handlePrev = () => {
-    if (currentPage > 1) setCurrentPage(currentPage - 1);
-  };
-
-  const handleNext = () => {
-    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
-  };
-
-  const renderPageNumbers = () => {
-    let pages = [];
-    if (totalPages <= 4) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      if (currentPage <= 3) {
-        pages = [1, 2, 3];
-      } else if (currentPage > 3 && currentPage < totalPages) {
-        pages = [1, currentPage - 1, currentPage];
-      }
-      if (!pages.includes(totalPages)) {
-        pages.push('ellipsis');
-        pages.push(totalPages);
-      }
+  // Eliminar una sede
+  const handleDelete = async (sedeId) => {
+    if (!window.confirm('¿Está seguro de eliminar esta sede?')) return;
+    
+    try {
+      setLoading(true);
+      await sedesService.eliminarSede(sedeId);
+      setSedes(prev => prev.filter(s => s.id !== sedeId));
+    } catch (err) {
+      setError('Error al eliminar la sede');
+    } finally {
+      setLoading(false);
     }
-    return pages.map((page) =>
-      page === 'ellipsis' ? (
-        <span key="ellipsis" className="px-1">...</span>
-      ) : (
-        <button
-          key={page}
-          onClick={() => handlePageClick(page)}
-          className={`w-8 h-8 rounded transition ${currentPage === page
-            ? 'bg-gray-200 font-bold'
-            : 'bg-transparent'
-          }`}
-        >
-          {page}
-        </button>
-      )
-    );
+  };
+
+  // Verificar disponibilidad de una sede
+  const verificarDisponibilidad = async (sedeId) => {
+    try {
+      setLoading(true);
+      const data = await sedesService.verificarDisponibilidadSede(sedeId);
+      setDisponibilidad(prev => ({ ...prev, [sedeId]: data }));
+    } catch (err) {
+      setError('Error al verificar disponibilidad');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Cambiar estado de una sede
+  const cambiarEstadoSede = async (sedeId, nuevoEstado) => {
+    try {
+      setLoading(true);
+      const updatedSede = await sedesService.actualizarEstadoSede(sedeId, nuevoEstado);
+      setSedes(prev => prev.map(s => s.id === sedeId ? updatedSede : s));
+    } catch (err) {
+      setError('Error al actualizar el estado');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Resetear formulario
+  const resetForm = () => {
+    setFormData({
+      nombre: '',
+      direccion: '',
+      telefono: '',
+      especialidades: '',
+      clinicaId: clinicas.length > 0 ? clinicas[0].id : '',
+      estado: 'ACTIVA'
+    });
+    setIsEditing(false);
+    setCurrentSedeId(null);
+    setShowForm(false);
   };
 
   return (
-    <div className="clinicaPage">
-      <h1>Listado de Sedes</h1>
-
-      {/* Tabla de clínicas */}
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="text-sm text-gray-600">
-              <th className="py-2 px-4 text-left font-medium">ID</th>
-              <th className="py-2 px-4 text-left font-medium">Nombre</th>
-              <th className="py-2 px-4 text-left font-medium">Dirección</th>
-              <th className="py-2 px-4 text-left font-medium">Teléfono</th>
-              <th className="py-2 px-4 text-left font-medium">Correo</th>
-              <th className="py-2 px-4 text-left font-medium">Especialidades</th>
-              <th className="py-2 px-4 text-left font-medium">Horario Atención</th>
-              <th className="py-2 px-4 text-left font-medium">Opciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentClinicas.map(clinica => (
-              <tr key={clinica.id}>
-                <td className="py-2 px-4">{clinica.id}</td>
-                <td className="py-2 px-4">{clinica.nombre}</td>
-                <td className="py-2 px-4">{clinica.direccion}</td>
-                <td className="py-2 px-4">{clinica.telefono}</td>
-                <td className="py-2 px-4">{clinica.correo}</td>
-                <td className="py-2 px-4">{clinica.especialidades.join(', ')}</td>
-                <td className="py-2 px-4">{clinica.horarioAtencion}</td>
-                <td className="py-2 px-4">
-                  <div className="flex gap-4">
-                    <button className="border-2 border-orange-500 rounded p-2 text-orange-500 hover:bg-orange-50">
-                      <BiLinkAlt size={14} />
-                    </button>
-                    <button className="border-2 border-orange-500 rounded p-2 text-orange-500 hover:bg-orange-50">
-                      <FiArrowRight size={14} />
-                    </button>
-                    <button
-                      className="border-2 border-orange-500 rounded p-2 text-orange-500 hover:bg-orange-50"
-                      onClick={() => handleDelete(clinica.id)}
-                    >
-                      <MdDeleteOutline size={14} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {/* Paginador */}
-        {totalPages > 1 && (
-          <div className="flex justify-center items-center mt-4 gap-2">
-            <button
-              onClick={handlePrev}
-              disabled={currentPage === 1}
-              className="p-2 rounded bg-gray-100 text-gray-700 disabled:opacity-50"
+    <div className="sedes-container">
+      <div className="sedes-header">
+        <h1>Gestión de Sedes Clínicas</h1>
+        <button 
+          className="btn-new" 
+          onClick={() => setShowForm(!showForm)}
+        >
+          <FaPlus /> {showForm ? 'Cancelar' : 'Nueva Sede'}
+        </button>
+      </div>
+      
+      {error && <div className="error-message">{error}</div>}
+      
+      {/* Formulario para crear/editar sedes */}
+      {showForm && (
+        <form onSubmit={handleSubmit} className="sedes-form">
+          <h2>{isEditing ? 'Editar Sede' : 'Crear Nueva Sede'}</h2>
+          
+          <div className="form-group">
+            <label>Nombre de la Sede</label>
+            <input
+              type="text"
+              name="nombre"
+              value={formData.nombre}
+              onChange={handleChange}
+              required
+              disabled={loading}
+            />
+          </div>
+          
+          <div className="form-group">
+            <label>Dirección</label>
+            <input
+              type="text"
+              name="direccion"
+              value={formData.direccion}
+              onChange={handleChange}
+              required
+              disabled={loading}
+            />
+          </div>
+          
+          <div className="form-group">
+            <label>Teléfono</label>
+            <input
+              type="text"
+              name="telefono"
+              value={formData.telefono}
+              onChange={handleChange}
+              required
+              disabled={loading}
+            />
+          </div>
+          
+          <div className="form-group">
+            <label>Especialidades (separadas por coma)</label>
+            <input
+              type="text"
+              name="especialidades"
+              value={formData.especialidades}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
+          
+          <div className="form-group">
+            <label>Clínica</label>
+            <select
+              name="clinicaId"
+              value={formData.clinicaId}
+              onChange={handleChange}
+              required
+              disabled={loading || clinicas.length === 0}
             >
-              <BsChevronLeft />
+              {clinicas.map(clinica => (
+                <option key={clinica.id} value={clinica.id}>
+                  {clinica.nombre}
+                </option>
+              ))}
+            </select>
+          </div>
+          
+          <div className="form-group">
+            <label>Estado</label>
+            <select
+              name="estado"
+              value={formData.estado}
+              onChange={handleChange}
+              required
+              disabled={loading}
+            >
+              <option value="ACTIVA">Activa</option>
+              <option value="INACTIVA">Inactiva</option>
+              <option value="MANTENIMIENTO">En Mantenimiento</option>
+            </select>
+          </div>
+          
+          <div className="form-actions">
+            <button 
+              type="button" 
+              className="btn-cancel"
+              onClick={resetForm}
+              disabled={loading}
+            >
+              Cancelar
             </button>
-            {renderPageNumbers()}
-            <button
-              onClick={handleNext}
-              disabled={currentPage === totalPages}
-              className="p-2 rounded bg-gray-100 text-gray-700 disabled:opacity-50"
+            <button 
+              type="submit" 
+              className="btn-submit"
+              disabled={loading}
             >
-              <BsChevronRight />
+              {loading ? 'Guardando...' : (isEditing ? 'Actualizar' : 'Crear')}
             </button>
           </div>
+        </form>
+      )}
+      
+      {/* Búsqueda */}
+      <div className="search-section">
+        <div className="input-with-icon">
+          <input
+            type="text"
+            placeholder="Buscar sedes por nombre, dirección o clínica..."
+            value={searchTerm}
+            onChange={handleSearch}
+            disabled={loading}
+          />
+          <FaSearch />
+        </div>
+      </div>
+      
+      {/* Listado de sedes */}
+      <div className="sedes-list">
+        {loading ? (
+          <div className="loading-container">
+            <div className="loading-spinner"></div>
+            <p>Cargando sedes...</p>
+          </div>
+        ) : filteredSedes.length === 0 ? (
+          <div className="no-results">
+            <p>No se encontraron sedes</p>
+          </div>
+        ) : (
+          <table className="sedes-table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Dirección</th>
+                <th>Teléfono</th>
+                <th>Clínica</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredSedes.map(sede => (
+                <tr key={sede.id} className={sede.estado.toLowerCase()}>
+                  <td>{sede.nombre}</td>
+                  <td>{sede.direccion}</td>
+                  <td>{sede.telefono}</td>
+                  <td>{sede.clinica?.nombre || 'Sin clínica'}</td>
+                  <td>
+                    <span className={`status-badge ${sede.estado.toLowerCase()}`}>
+                      {sede.estado}
+                    </span>
+                  </td>
+                  <td className="actions">
+                    <button 
+                      className="btn-action btn-info"
+                      onClick={() => verificarDisponibilidad(sede.id)}
+                      title="Ver disponibilidad"
+                    >
+                      <FaInfoCircle />
+                    </button>
+                    
+                    <button 
+                      className="btn-action btn-edit"
+                      onClick={() => handleEdit(sede)}
+                      title="Editar"
+                    >
+                      <FaEdit />
+                    </button>
+                    
+                    <button 
+                      className="btn-action btn-delete"
+                      onClick={() => handleDelete(sede.id)}
+                      title="Eliminar"
+                    >
+                      <FaTrash />
+                    </button>
+                    
+                    {disponibilidad[sede.id] && (
+                      <div className="disponibilidad-popup">
+                        <p><strong>Disponibilidad:</strong> {disponibilidad[sede.id].disponible ? 'Disponible' : 'No disponible'}</p>
+                        {disponibilidad[sede.id].mensaje && (
+                          <p>{disponibilidad[sede.id].mensaje}</p>
+                        )}
+                        {disponibilidad[sede.id].citasDisponibles !== undefined && (
+                          <p>Citas disponibles: {disponibilidad[sede.id].citasDisponibles}</p>
+                        )}
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
       </div>
     </div>
   );
 };
 
-export default ClinicasPage;
+export default Añadirsede;
