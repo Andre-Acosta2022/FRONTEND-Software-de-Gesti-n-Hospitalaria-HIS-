@@ -1,9 +1,8 @@
 import React from 'react';
 import { useKeycloak } from '@react-keycloak/web';  // Usamos keycloak para obtener roles
-
-import LOGO from '@/assets/image/logo.webp'
-import '@/presentation/styles/common/header.css'
-import { Link } from 'react-router-dom'
+import LOGO from '@/assets/image/logo.webp';
+import '@/presentation/styles/common/header.css';
+import { Link } from 'react-router-dom';
 
 export default function Header() {
   const { keycloak } = useKeycloak();  // Obtener la instancia de Keycloak
@@ -86,10 +85,12 @@ export default function Header() {
           </nav>
         </div>
       </div>
-      <div className="header__button">
-        <Link to="/login" className="header__button--style">
-          Iniciar Sesión
-        </Link>
+        <div className="header__button">
+        {keycloak?.authenticated ? (
+          <button onClick={handleLogout}>Cerrar sesión</button> // Botón de logout
+        ) : (
+          <Link to="/login">Iniciar sesión</Link>
+        )}
       </div>
     </div>
   );

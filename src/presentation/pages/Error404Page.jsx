@@ -1,3 +1,5 @@
+import React from 'react';
+import { Link } from 'react-router-dom'; 
 export default function Error404() {
    return (
         <main className='flex justify-center w-full h-full m-auto'>
