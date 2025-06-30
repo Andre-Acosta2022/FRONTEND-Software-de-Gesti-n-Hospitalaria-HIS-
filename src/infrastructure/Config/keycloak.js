@@ -7,9 +7,9 @@ let keycloakInstance = null;
 const getKeycloakInstance = () => {
   if (!keycloakInstance) {
     keycloakInstance = new Keycloak({
-      url: 'http://localhost:8080/auth',  // URL del servidor Keycloak
+      url: 'http://localhost:8080',  // URL del servidor Keycloak
       realm: 'clinica-realm',            // Nombre del realm configurado en Keycloak
-      clientId: 'frontend-client',       // El cliente que configuraste en Keycloak
+      clientId: 'clinica-client',       // El cliente que configuraste en Keycloak
     });
   }
   return keycloakInstance;
